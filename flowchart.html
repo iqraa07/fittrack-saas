@@ -77,6 +77,37 @@
     .back-top.show{opacity:1;transform:translateY(0)}
     .back-top:active{transform:scale(0.92)}
 
+    /* Active TOC */
+    .toc a{transition:color 0.2s,font-weight 0.2s}
+    .toc a.active{color:#0f766e;font-weight:700}
+    .toc li{position:relative;padding-left:4px;transition:all 0.2s}
+    .toc li.active{padding-left:8px}
+    .toc li.active::before{content:'';position:absolute;left:-8px;top:4px;width:3px;height:12px;background:#0f766e;border-radius:2px}
+
+    /* Toolbar */
+    .toolbar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+    .tool-btn{padding:8px 16px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;font-size:12px;font-weight:500;color:#4b5563;cursor:pointer;font-family:inherit;transition:all 0.2s}
+    .tool-btn:hover{border-color:#0f766e;color:#0f766e;background:#f0fdf4}
+    .tool-btn:active{transform:scale(0.97)}
+
+    /* Lightbox */
+    .lightbox{position:fixed;top:0;left:0;right:0;bottom:0;z-index:500;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;padding:16px;cursor:zoom-out}
+    .lightbox.show{display:flex}
+    .lightbox-inner{background:#fff;border-radius:12px;padding:24px;max-width:95vw;max-height:90vh;overflow:auto;-webkit-overflow-scrolling:touch;cursor:default;position:relative;animation:lbIn 0.25s ease}
+    @keyframes lbIn{from{opacity:0;transform:scale(0.92)}to{opacity:1;transform:scale(1)}}
+    .lightbox-inner svg{display:block;width:100%;height:auto;min-width:600px}
+    .lightbox-close{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:#6b7280;z-index:10;transition:all 0.2s}
+    .lightbox-close:hover{background:#fef2f2;border-color:#dc2626;color:#dc2626}
+    .lightbox-hint{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.6);color:#fff;padding:6px 14px;border-radius:6px;font-size:11px;pointer-events:none;opacity:0;transition:opacity 0.3s}
+    .lightbox.show .lightbox-hint{opacity:1;animation:hintFade 3s ease forwards}
+    @keyframes hintFade{0%,70%{opacity:1}100%{opacity:0}}
+
+    /* Diagram clickable hint */
+    .diagram-card{cursor:pointer;position:relative;transition:box-shadow 0.2s}
+    .diagram-card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+    .diagram-card::after{content:'Klik untuk perbesar';position:absolute;bottom:10px;right:14px;font-size:11px;color:#9ca3af;opacity:0;transition:opacity 0.2s;pointer-events:none}
+    .diagram-card:hover::after{opacity:1}
+
     footer{text-align:center;font-size:12px;color:#9ca3af;padding-top:32px;border-top:1px solid #e5e7eb;margin-top:48px}
     footer a{color:#0f766e;text-decoration:none}
 
@@ -86,6 +117,8 @@
       .diagram-card{padding:20px 12px}
       .section-header{padding:16px}
       .section-inner{padding:0 16px 20px}
+      .lightbox-inner{padding:12px}
+      .lightbox-inner svg{min-width:500px}
     }
   </style>
 </head>
@@ -105,17 +138,22 @@
     </div>
   </div>
 
-  <nav class="toc reveal">
+  <nav class="toc reveal" id="toc">
     <h2>Daftar Isi</h2>
     <ol>
-      <li><a href="#flow-pt">User Flow — Personal Trainer</a></li>
-      <li><a href="#flow-client">User Flow — Client</a></li>
-      <li><a href="#arch">Arsitektur Sistem</a></li>
-      <li><a href="#notif">Alur Notifikasi Harian</a></li>
-      <li><a href="#db">Skema Database</a></li>
-      <li><a href="#pricing">Struktur Pricing</a></li>
+      <li><a href="#flow-pt" data-target="flow-pt">User Flow — Personal Trainer</a></li>
+      <li><a href="#flow-client" data-target="flow-client">User Flow — Client</a></li>
+      <li><a href="#arch" data-target="arch">Arsitektur Sistem</a></li>
+      <li><a href="#notif" data-target="notif">Alur Notifikasi Harian</a></li>
+      <li><a href="#db" data-target="db">Skema Database</a></li>
+      <li><a href="#pricing" data-target="pricing">Struktur Pricing</a></li>
     </ol>
   </nav>
+
+  <div class="toolbar reveal">
+    <button class="tool-btn" onclick="toggleAll(true)">Buka Semua</button>
+    <button class="tool-btn" onclick="toggleAll(false)">Tutup Semua</button>
+  </div>
 
   <!-- 1. PT FLOW -->
   <div class="section reveal open" id="flow-pt">
@@ -572,6 +610,14 @@ flowchart LR
   <footer>FitTrack Product Documentation v1.0 &middot; <a href="https://github.com/iqraa07/fittrack-saas">Source Repository</a></footer>
 </div>
 
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <div class="lightbox-inner" id="lightboxContent">
+    <button class="lightbox-close" onclick="closeLightbox(event,true)">&times;</button>
+  </div>
+  <div class="lightbox-hint">Scroll atau pinch untuk zoom</div>
+</div>
+
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
   mermaid.initialize({
@@ -596,12 +642,64 @@ flowchart LR
   }
   window.toggleSection = toggleSection;
 
+  // Expand / Collapse All
+  function toggleAll(open){
+    document.querySelectorAll('.section').forEach(s => {
+      if(open) s.classList.add('open');
+      else s.classList.remove('open');
+    });
+  }
+  window.toggleAll = toggleAll;
+
   // Progress bar
   window.addEventListener('scroll', () => {
     const h = document.documentElement;
     const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
     document.getElementById('progressBar').style.width = pct + '%';
     document.getElementById('backTop').classList.toggle('show', h.scrollTop > 400);
+  });
+
+  // Active TOC
+  const tocObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      const link = document.querySelector(`#toc a[data-target="${e.target.id}"]`);
+      if(!link) return;
+      if(e.isIntersecting){
+        document.querySelectorAll('#toc a').forEach(a => {a.classList.remove('active');a.parentElement.classList.remove('active')});
+        link.classList.add('active');
+        link.parentElement.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-20% 0px -60% 0px'});
+  document.querySelectorAll('.section[id]').forEach(s => tocObs.observe(s));
+
+  // Lightbox
+  document.querySelectorAll('.diagram-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const svg = card.querySelector('svg');
+      if(!svg) return;
+      const lb = document.getElementById('lightbox');
+      const content = document.getElementById('lightboxContent');
+      const clone = svg.cloneNode(true);
+      clone.style.minWidth = '700px';
+      const oldSvg = content.querySelector('svg');
+      if(oldSvg) oldSvg.remove();
+      content.appendChild(clone);
+      lb.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    });
+  });
+
+  function closeLightbox(e, force){
+    if(force || e.target.id === 'lightbox'){
+      document.getElementById('lightbox').classList.remove('show');
+      document.body.style.overflow = '';
+    }
+  }
+  window.closeLightbox = closeLightbox;
+
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') closeLightbox(e, true);
   });
 </script>
 </body>
