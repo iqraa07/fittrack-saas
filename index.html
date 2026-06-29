@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+  <title>FitTrack — Fitness Client Management</title>
+  <meta name="theme-color" content="#ffffff">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-static@latest/font/lucide.min.css">
+</head>
+<body>
+
+<!-- LANDING -->
+<div id="landing" class="page no-pad active">
+  <nav class="l-nav">
+    <div class="brand">Fit<span>Track</span></div>
+    <button class="btn btn-sm btn-fill" onclick="showPage('login')">Masuk</button>
+  </nav>
+  <section class="l-hero">
+    <div class="tag">Platform untuk Personal Trainer</div>
+    <h1>Kelola klien fitness dari satu tempat.</h1>
+    <p>Atur jadwal latihan, pantau nutrisi harian klien, dan lacak progress mereka — semua dalam satu dashboard yang simpel.</p>
+    <div class="l-actions">
+      <button class="btn btn-fill btn-block" onclick="showPage('login')">Mulai Gratis</button>
+      <button class="btn btn-stroke btn-block" onclick="showPage('login')">Lihat Demo</button>
+    </div>
+  </section>
+  <section class="l-features">
+    <div class="label">Fitur</div>
+    <h2>Yang kamu butuhkan</h2>
+    <div class="feat-list">
+      <div class="feat-item">
+        <div class="feat-icon" style="background:var(--brand-bg);color:var(--brand-primary)"><i class="lucide-users"></i></div>
+        <div><h3>Manajemen Klien</h3><p>Kelola profil, target berat badan, dan status keaktifan klien.</p></div>
+      </div>
+      <div class="feat-item">
+        <div class="feat-icon" style="background:rgba(37,99,235,0.08);color:#2563eb"><i class="lucide-calendar"></i></div>
+        <div><h3>Jadwal Latihan</h3><p>Buat jadwal harian per klien. Notifikasi otomatis terkirim setiap pagi.</p></div>
+      </div>
+      <div class="feat-item">
+        <div class="feat-icon" style="background:var(--accent-warn-bg);color:var(--accent-warn)"><i class="lucide-utensils"></i></div>
+        <div><h3>Tracking Nutrisi</h3><p>Klien log makanan harian. Kalori dan makro otomatis terhitung.</p></div>
+      </div>
+      <div class="feat-item">
+        <div class="feat-icon" style="background:var(--accent-success-bg);color:var(--accent-success)"><i class="lucide-trending-up"></i></div>
+        <div><h3>Progress Report</h3><p>Grafik berat badan dan konsistensi klien dalam satu tampilan.</p></div>
+      </div>
+    </div>
+  </section>
+  <footer class="l-footer">&copy; 2026 FitTrack. All rights reserved.</footer>
+</div>
+
+<!-- LOGIN -->
+<div id="login" class="page no-pad">
+  <div class="login-wrap">
+    <div class="login-box">
+      <div style="text-align:center;margin-bottom:28px"><div class="brand" style="font-size:22px">Fit<span>Track</span></div></div>
+      <h2>Masuk ke akun</h2>
+      <p class="sub">Pilih role dan masukkan kredensial kamu.</p>
+      <div class="role-toggle">
+        <button class="role-opt active" onclick="selectRole('pt')">Personal Trainer</button>
+        <button class="role-opt" onclick="selectRole('client')">Client</button>
+      </div>
+      <div class="field"><label>Email</label><input class="input" type="email" placeholder="nama@email.com"></div>
+      <div class="field"><label>Password</label><input class="input" type="password" placeholder="Masukkan password"></div>
+      <button class="btn btn-fill btn-block" style="margin-top:8px" onclick="handleLogin()">Masuk</button>
+      <p style="text-align:center;margin-top:16px;font-size:13px;color:var(--text-tertiary)">Belum punya akun? <a href="#" style="color:var(--brand-primary);text-decoration:none;font-weight:500">Daftar</a></p>
+      <a href="#" class="back-link" onclick="showPage('landing')">Kembali ke beranda</a>
+    </div>
+  </div>
+</div>
+
+<!-- PT DASHBOARD -->
+<div id="pt-dashboard" class="page">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-avatar" style="background:var(--brand-primary)">RA</div>
+      <div class="topbar-info"><div class="t-name">Rizky Aditya</div><div class="t-role">Personal Trainer</div></div>
+    </div>
+    <div class="topbar-right">
+      <button class="icn-btn" onclick="showToast('Tidak ada notifikasi baru')"><i class="lucide-bell" style="font-size:16px;color:var(--text-secondary)"></i><span class="dot-badge"></span></button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="greeting"><h1>Selamat malam, Rizky</h1><p>Minggu, 29 Juni 2026</p></div>
+    <div class="qa-row">
+      <div class="qa-card" onclick="openModal('modal-client')">
+        <div class="qa-icon" style="background:var(--brand-bg);color:var(--brand-primary)"><i class="lucide-user-plus" style="font-size:15px"></i></div>
+        <div class="qa-title">Tambah Klien</div><div class="qa-desc">Daftarkan klien baru</div>
+      </div>
+      <div class="qa-card" onclick="sendWorkoutNotif()">
+        <div class="qa-icon" style="background:rgba(37,99,235,0.08);color:#2563eb"><i class="lucide-send" style="font-size:15px"></i></div>
+        <div class="qa-title">Kirim Jadwal</div><div class="qa-desc">Notifikasi ke semua klien</div>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat"><div class="s-label">Total Klien</div><div class="s-val" id="stat-total-clients">12</div><div class="s-sub s-up">+2 bulan ini</div></div>
+      <div class="stat"><div class="s-label">Aktif</div><div class="s-val" style="color:var(--accent-success)">9</div><div class="s-sub s-neutral">75% aktif</div></div>
+      <div class="stat"><div class="s-label">Sesi Hari Ini</div><div class="s-val" style="color:var(--brand-primary)">6</div><div class="s-sub s-neutral">dari 9 klien</div></div>
+      <div class="stat"><div class="s-label">Meal Log</div><div class="s-val" style="color:var(--accent-warn)">73%</div><div class="s-sub s-down">-5% vs minggu lalu</div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Jadwal Hari Ini</h2></div>
+      <div class="sch-list">
+        <div class="sch-item"><div class="sch-time"><div class="t">07:00</div><div class="p">pagi</div></div><div class="sch-dot" style="background:var(--accent-success)"></div><div class="sch-detail"><div class="sch-title">Upper Body — Sarah A.</div><div class="sch-desc">Bench Press, Shoulder Press, 60 min</div></div></div>
+        <div class="sch-item"><div class="sch-time"><div class="t">09:00</div><div class="p">pagi</div></div><div class="sch-dot" style="background:var(--brand-primary)"></div><div class="sch-detail"><div class="sch-title">Leg Day — Budi P.</div><div class="sch-desc">Squat, Leg Press, Lunges, 45 min</div></div></div>
+        <div class="sch-item"><div class="sch-time"><div class="t">14:00</div><div class="p">siang</div></div><div class="sch-dot" style="background:#2563eb"></div><div class="sch-detail"><div class="sch-title">Cardio HIIT — Andi F.</div><div class="sch-desc">Treadmill, Burpees, 30 min</div></div></div>
+        <div class="sch-item"><div class="sch-time"><div class="t">16:00</div><div class="p">sore</div></div><div class="sch-dot" style="background:var(--accent-warn)"></div><div class="sch-detail"><div class="sch-title">Full Body — Dewi W.</div><div class="sch-desc">Deadlift, Push Up, Plank, 50 min</div></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Daftar Klien</h2><button class="btn btn-xs btn-fill" onclick="openModal('modal-client')">Tambah</button></div>
+      <div class="cl-list" id="client-list">
+        <div class="cl-item"><div class="cl-av" style="background:#4f46e5">SA</div><div class="cl-info"><div class="cl-name">Sarah Amelia</div><div class="cl-meta">65 kg · Target 58 kg</div></div><span class="badge badge-ok">Aktif</span></div>
+        <div class="cl-item"><div class="cl-av" style="background:#2563eb">BP</div><div class="cl-info"><div class="cl-name">Budi Pratama</div><div class="cl-meta">82 kg · Target 75 kg</div></div><span class="badge badge-ok">Aktif</span></div>
+        <div class="cl-item"><div class="cl-av" style="background:#dc2626">DW</div><div class="cl-info"><div class="cl-name">Dewi Wulandari</div><div class="cl-meta">70 kg · Target 62 kg</div></div><span class="badge badge-warn">3 hari skip</span></div>
+        <div class="cl-item"><div class="cl-av" style="background:#0f766e">AF</div><div class="cl-info"><div class="cl-name">Andi Firmansyah</div><div class="cl-meta">90 kg · Target 80 kg</div></div><span class="badge badge-ok">Aktif</span></div>
+        <div class="cl-item"><div class="cl-av" style="background:#d97706">RN</div><div class="cl-info"><div class="cl-name">Rina Novita</div><div class="cl-meta">55 kg · Target 52 kg</div></div><span class="badge badge-off">Nonaktif</span></div>
+      </div>
+    </div>
+  </div>
+  <nav class="bnav">
+    <div class="bnav-item on"><i class="lucide-home" style="font-size:20px"></i><span class="bnav-label">Home</span></div>
+    <div class="bnav-item"><i class="lucide-users" style="font-size:20px;color:var(--text-tertiary)"></i><span class="bnav-label">Klien</span></div>
+    <div class="bnav-center" onclick="openModal('modal-client')"><i class="lucide-plus" style="font-size:20px;color:#fff"></i></div>
+    <div class="bnav-item"><i class="lucide-calendar" style="font-size:20px;color:var(--text-tertiary)"></i><span class="bnav-label">Jadwal</span></div>
+    <div class="bnav-item" onclick="showPage('landing')"><i class="lucide-log-out" style="font-size:20px;color:var(--text-tertiary)"></i><span class="bnav-label">Keluar</span></div>
+  </nav>
+</div>
+
+<!-- CLIENT DASHBOARD -->
+<div id="client-dashboard" class="page">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-avatar" style="background:#4f46e5">SA</div>
+      <div class="topbar-info"><div class="t-name">Sarah Amelia</div><div class="t-role">Client</div></div>
+    </div>
+    <div class="topbar-right"><button class="icn-btn"><i class="lucide-bell" style="font-size:16px;color:var(--text-secondary)"></i><span class="dot-badge"></span></button></div>
+  </div>
+  <div class="content">
+    <div class="greeting"><h1>Hai, Sarah</h1><p>Minggu, 29 Juni 2026 · Streak 7 hari</p></div>
+    <div class="stats-row">
+      <div class="stat"><div class="s-label">Berat</div><div class="s-val">63.2 <span style="font-size:12px;color:var(--text-tertiary)">kg</span></div><div class="s-sub s-up">-1.8 kg</div></div>
+      <div class="stat"><div class="s-label">Target Kalori</div><div class="s-val" style="color:var(--brand-primary)">1.800</div><div class="s-sub s-neutral">kcal/hari</div></div>
+      <div class="stat"><div class="s-label">Streak</div><div class="s-val" style="color:var(--accent-warn)">7</div><div class="s-sub s-up">hari berturut</div></div>
+      <div class="stat"><div class="s-label">Sesi</div><div class="s-val" style="color:var(--accent-success)">2</div><div class="s-sub s-neutral">hari ini</div></div>
+    </div>
+    <div class="card">
+      <div class="cal-wrap">
+        <div class="cal-ring">
+          <svg width="140" height="140" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="56" fill="none" stroke="#eef0f4" stroke-width="9"/>
+            <circle id="calorie-progress" cx="70" cy="70" r="56" fill="none" stroke="var(--brand-primary)" stroke-width="9" stroke-linecap="round" stroke-dasharray="352" stroke-dashoffset="108"/>
+          </svg>
+          <div class="cal-center"><div class="cal-val" id="calorie-value">1.245</div><div class="cal-sub" id="calorie-left">555 kcal tersisa</div></div>
+        </div>
+        <div class="macro-bar">
+          <div style="text-align:center"><div class="m-v" style="color:#2563eb">92g</div><div class="m-l">Protein</div></div>
+          <div style="text-align:center"><div class="m-v" style="color:var(--accent-warn)">145g</div><div class="m-l">Karbo</div></div>
+          <div style="text-align:center"><div class="m-v" style="color:var(--accent-error)">38g</div><div class="m-l">Lemak</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Streak Minggu Ini</h2></div>
+      <div class="streak-row">
+        <div class="streak-d ok">Sen</div><div class="streak-d ok">Sel</div><div class="streak-d ok">Rab</div>
+        <div class="streak-d ok">Kam</div><div class="streak-d ok">Jum</div><div class="streak-d ok">Sab</div>
+        <div class="streak-d now">Min</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Makanan Hari Ini</h2><button class="btn btn-xs btn-fill" onclick="openModal('modal-meal')">Tambah</button></div>
+      <div style="padding:12px 16px">
+        <div class="meal-group"><h3>Sarapan</h3>
+          <div class="meal-row"><div><div class="m-food">Oatmeal + Pisang</div><div class="m-port">250g</div></div><div class="m-kcal">320 kcal</div></div>
+          <div class="meal-row"><div><div class="m-food">Telur Rebus (2)</div><div class="m-port">100g</div></div><div class="m-kcal">155 kcal</div></div>
+        </div>
+        <div class="meal-group"><h3>Makan Siang</h3>
+          <div id="lunch-list">
+            <div class="meal-row"><div><div class="m-food">Nasi Merah + Ayam Panggang</div><div class="m-port">350g</div></div><div class="m-kcal">480 kcal</div></div>
+            <div class="meal-row"><div><div class="m-food">Sayur Bayam</div><div class="m-port">150g</div></div><div class="m-kcal">45 kcal</div></div>
+          </div>
+        </div>
+        <div class="meal-group"><h3>Makan Malam</h3>
+          <div class="meal-row"><div><div class="m-food">Salad + Dada Ayam</div><div class="m-port">300g</div></div><div class="m-kcal">245 kcal</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Latihan Hari Ini</h2></div>
+      <div class="sch-list">
+        <div class="sch-item"><div class="sch-time"><div class="t">07:00</div><div class="p">pagi</div></div><div class="sch-dot" style="background:var(--accent-success)"></div><div class="sch-detail"><div class="sch-title">Upper Body</div><div class="sch-desc">Bench Press, Shoulder Press, 60 min</div></div></div>
+        <div class="sch-item"><div class="sch-time"><div class="t">18:00</div><div class="p">sore</div></div><div class="sch-dot" style="background:var(--brand-primary)"></div><div class="sch-detail"><div class="sch-title">Core &amp; Abs</div><div class="sch-desc">Crunches, Plank, 30 min</div></div></div>
+      </div>
+    </div>
+  </div>
+  <nav class="bnav">
+    <div class="bnav-item on"><i class="lucide-home" style="font-size:20px"></i><span class="bnav-label">Home</span></div>
+    <div class="bnav-item"><i class="lucide-dumbbell" style="font-size:20px;color:var(--text-tertiary)"></i><span class="bnav-label">Latihan</span></div>
+    <div class="bnav-center" onclick="openModal('modal-meal')"><i class="lucide-plus" style="font-size:20px;color:#fff"></i></div>
+    <div class="bnav-item"><i class="lucide-bar-chart-3" style="font-size:20px;color:var(--text-tertiary)"></i><span class="bnav-label">Progress</span></div>
+    <div class="bnav-item" onclick="showPage('landing')"><i class="lucide-user" style="font-size:20px;color:var(--text-tertiary)"></i><span class="bnav-label">Profil</span></div>
+  </nav>
+</div>
+
+<!-- MODALS -->
+<div id="modal-client" class="modal-bg">
+  <div class="modal-sheet">
+    <div class="modal-bar"></div>
+    <h2>Tambah Klien Baru</h2>
+    <div class="field"><label>Nama Lengkap</label><input id="client-name" class="input" placeholder="Masukkan nama klien"></div>
+    <div class="field"><label>Berat Badan (kg)</label><input id="client-weight" type="number" class="input" placeholder="70"></div>
+    <div class="field"><label>Target Berat (kg)</label><input id="client-target" type="number" class="input" placeholder="65"></div>
+    <div class="modal-btns"><button class="btn btn-ghost" onclick="closeModal('modal-client')">Batal</button><button class="btn btn-fill" onclick="addClient()">Simpan</button></div>
+  </div>
+</div>
+
+<div id="modal-meal" class="modal-bg">
+  <div class="modal-sheet">
+    <div class="modal-bar"></div>
+    <h2>Tambah Makanan</h2>
+    <div class="field"><label>Nama Makanan</label><input id="meal-food" class="input" placeholder="Nasi goreng"></div>
+    <div class="field"><label>Porsi</label><input id="meal-portion" class="input" placeholder="1 piring / 250g"></div>
+    <div class="field"><label>Kalori (kcal)</label><input id="meal-cal" type="number" class="input" placeholder="350"></div>
+    <div class="modal-btns"><button class="btn btn-ghost" onclick="closeModal('modal-meal')">Batal</button><button class="btn btn-fill" onclick="logMeal()">Simpan</button></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"><span class="toast-text"></span></div>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitTrack — Product Flowchart</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',sans-serif; background:#f8f9fb; color:#101820; line-height:1.6; }
+    .container { max-width:960px; margin:0 auto; padding:40px 24px 80px; }
+    header { text-align:center; margin-bottom:48px; }
+    header h1 { font-size:28px; font-weight:700; letter-spacing:-0.5px; margin-bottom:6px; }
+    header p { font-size:15px; color:#4a5568; }
+    .diagram-section { margin-bottom:48px; }
+    .diagram-section h2 { font-size:18px; font-weight:600; letter-spacing:-0.2px; margin-bottom:6px; color:#101820; }
+    .diagram-section .desc { font-size:13px; color:#64748b; margin-bottom:20px; }
+    .diagram-card { background:#fff; border:1px solid #e2e5ea; border-radius:12px; padding:32px 24px; overflow-x:auto; }
+    .diagram-card .mermaid { display:flex; justify-content:center; }
+    .divider { height:1px; background:#e2e5ea; margin:48px 0; }
+    footer { text-align:center; font-size:12px; color:#94a3b8; padding-top:24px; border-top:1px solid #e2e5ea; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>FitTrack — Product Flowchart</h1>
+      <p>Dokumentasi alur sistem, user flow, dan arsitektur teknis</p>
+    </header>
+
+    <div class="diagram-section">
+      <h2>1. User Flow — Personal Trainer</h2>
+      <p class="desc">Alur penggunaan aplikasi dari sisi Personal Trainer, mulai dari login hingga mengelola klien dan jadwal latihan.</p>
+      <div class="diagram-card">
+        <pre class="mermaid">
+flowchart TD
+    A([PT Buka Aplikasi]) --> B{Sudah Login?}
+    B -->|Belum| C[Halaman Login / Register]
+    C --> D[Isi Profil PT\nNama, Spesialisasi, Foto]
+    D --> E[Dashboard PT]
+    B -->|Sudah| E
+
+    E --> F{Pilih Menu}
+
+    F --> G[Kelola Klien]
+    G --> G1[Lihat Daftar Klien]
+    G1 --> G2{Aksi?}
+    G2 --> G3[Tambah Klien Baru\nNama, BB, TB, Target]
+    G2 --> G4[Lihat Detail Klien]
+    G4 --> G5[Lihat Progress\nGrafik BB dan Kalori]
+    G4 --> G6[Lihat Log Makan\nHarian Klien]
+
+    F --> H[Buat Jadwal Latihan]
+    H --> H1[Pilih Klien]
+    H1 --> H2[Pilih Hari dan Waktu]
+    H2 --> H3[Pilih Jenis Latihan\nTemplate atau Custom]
+    H3 --> H4[Set Detail\nSet, Rep, Durasi]
+    H4 --> H5[Preview dan Simpan]
+    H5 --> H6[Notifikasi Otomatis\nTerkirim ke Klien]
+
+    F --> I[Lihat Ringkasan]
+    I --> I1[Overview Semua Klien]
+    I1 --> I2[Filter: Aktif / Skip / Tercapai]
+
+    style A fill:#f0fdf4,stroke:#16a34a,color:#14532d
+    style E fill:#eff6ff,stroke:#2563eb,color:#1e3a5f
+    style H6 fill:#fef9c3,stroke:#ca8a04,color:#713f12
+        </pre>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="diagram-section">
+      <h2>2. User Flow — Client</h2>
+      <p class="desc">Alur penggunaan dari sisi klien, mencakup notifikasi latihan, logging makanan, dan tracking progress.</p>
+      <div class="diagram-card">
+        <pre class="mermaid">
+flowchart TD
+    A([Client Buka Aplikasi]) --> B{Sudah Login?}
+    B -->|Belum| C[Login / Register\nvia Link Undangan dari PT]
+    C --> D[Isi Profil\nBB, TB, Usia, Target]
+    D --> E[Home Client]
+    B -->|Sudah| E
+
+    E --> F[Notifikasi Hari Ini]
+    F --> F1[Lihat Jadwal Latihan\nHari Ini dari PT]
+    F1 --> F2{Selesai Latihan?}
+    F2 -->|Ya| F3[Tandai Selesai\nOpsional: Upload Foto]
+    F2 -->|Tidak| F4[Tandai Skip\nIsi Alasan - Opsional]
+
+    E --> G[Log Makanan]
+    G --> G1{Pilih Waktu Makan}
+    G1 --> G2[Sarapan]
+    G1 --> G3[Makan Siang]
+    G1 --> G4[Makan Malam]
+    G1 --> G5[Snack]
+    G2 & G3 & G4 & G5 --> G6[Cari / Pilih Makanan\ndari Database]
+    G6 --> G7[Input Porsi]
+    G7 --> G8[Kalori Otomatis Terhitung]
+    G8 --> G9[Simpan]
+
+    E --> H[Progress Saya]
+    H --> H1[Grafik Berat Badan\nMingguan]
+    H --> H2[Grafik Kalori\nHarian vs Target]
+    H --> H3[Streak Konsistensi]
+
+    G9 --> I[Ringkasan Harian\nTotal Kalori vs Target]
+    I --> I1{Kalori Tercapai?}
+    I1 -->|Sesuai Target| I2[Target Tercapai]
+    I1 -->|Kurang / Lebih| I3[Saran Penyesuaian]
+
+    style A fill:#f0fdf4,stroke:#16a34a,color:#14532d
+    style E fill:#eff6ff,stroke:#2563eb,color:#1e3a5f
+    style I2 fill:#f0fdf4,stroke:#16a34a,color:#14532d
+    style I3 fill:#fef9c3,stroke:#ca8a04,color:#713f12
+        </pre>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="diagram-section">
+      <h2>3. System Architecture</h2>
+      <p class="desc">Arsitektur teknis FitTrack: frontend, backend, database, dan layanan eksternal.</p>
+      <div class="diagram-card">
+        <pre class="mermaid">
+flowchart LR
+    subgraph Frontend ["Frontend"]
+        direction TB
+        PA[PT Dashboard — Web App]
+        CA[Client App — Mobile PWA]
+    end
+
+    subgraph Backend ["Backend"]
+        direction TB
+        API[REST API Server]
+        AUTH[Auth Service — JWT]
+        NOTIF[Notification Service]
+        CRON[Cron Scheduler]
+    end
+
+    subgraph Database ["Database"]
+        direction TB
+        PG[(PostgreSQL)]
+        REDIS[(Redis Cache)]
+    end
+
+    subgraph External ["External Services"]
+        direction TB
+        WA[WhatsApp API]
+        FCM[Firebase Cloud Messaging]
+        S3[Cloud Storage]
+    end
+
+    PA <--> API
+    CA <--> API
+    API <--> AUTH
+    API <--> PG
+    API <--> REDIS
+    CRON --> NOTIF
+    NOTIF --> WA
+    NOTIF --> FCM
+    API --> S3
+
+    style Frontend fill:#eff6ff,stroke:#2563eb,color:#1e3a5f
+    style Backend fill:#f0fdf4,stroke:#16a34a,color:#14532d
+    style Database fill:#fef9c3,stroke:#ca8a04,color:#713f12
+    style External fill:#faf5ff,stroke:#7c3aed,color:#3b0764
+        </pre>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="diagram-section">
+      <h2>4. Notification Flow</h2>
+      <p class="desc">Alur notifikasi harian: jadwal pagi, alert kalori, dan ringkasan malam.</p>
+      <div class="diagram-card">
+        <pre class="mermaid">
+sequenceDiagram
+    participant CRON as Cron Job
+    participant API as API Server
+    participant DB as Database
+    participant NOTIF as Notification Service
+    participant PT as Personal Trainer
+    participant CLIENT as Client
+
+    Note over CRON: Setiap hari jam 06:00 WIB
+    CRON->>API: Trigger kirim jadwal hari ini
+    API->>DB: Query workout_schedules WHERE date = today
+    DB-->>API: Return daftar jadwal
+
+    loop Untuk setiap klien
+        API->>NOTIF: Kirim notifikasi
+        NOTIF->>CLIENT: Jadwal latihan hari ini
+    end
+
+    Note over CLIENT: Siang / Malam
+    CLIENT->>API: POST /meals — log makanan
+    API->>DB: Simpan meal_log
+    API->>API: Hitung total kalori hari ini
+
+    alt Kalori melebihi target
+        API->>CLIENT: Alert — kalori melebihi batas harian
+    end
+
+    Note over CRON: Setiap hari jam 21:00 WIB
+    CRON->>API: Trigger generate daily summary
+    API->>DB: Aggregate meal_logs + workout status
+    API->>DB: Simpan daily_summary
+    API->>PT: Ringkasan kepatuhan klien hari ini
+    API->>CLIENT: Ringkasan kalori dan workout harian
+        </pre>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="diagram-section">
+      <h2>5. Pricing Tiers</h2>
+      <p class="desc">Struktur monetisasi FitTrack dengan tiga tier: Free, Pro, dan Studio.</p>
+      <div class="diagram-card">
+        <pre class="mermaid">
+flowchart LR
+    subgraph Free ["Free Plan"]
+        direction TB
+        F1[Maks 3 Klien]
+        F2[Workout Scheduler]
+        F3[Basic Meal Log]
+        F4[Push Notification]
+    end
+
+    subgraph Pro ["Pro Plan — Rp 99.000/bulan"]
+        direction TB
+        P1[Unlimited Klien]
+        P2[WhatsApp Notification]
+        P3[Progress Report PDF]
+        P4[Food Database Indo]
+        P5[Priority Support]
+    end
+
+    subgraph Studio ["Studio Plan — Rp 249.000/bulan"]
+        direction TB
+        S1[Multi-PT Account]
+        S2[Branding Kustom]
+        S3[API Access]
+        S4[Analytics Dashboard]
+        S5[Dedicated Support]
+    end
+
+    Free --> Pro --> Studio
+
+    style Free fill:#f0fdf4,stroke:#16a34a,color:#14532d
+    style Pro fill:#eff6ff,stroke:#2563eb,color:#1e3a5f
+    style Studio fill:#fef9c3,stroke:#ca8a04,color:#713f12
+        </pre>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="diagram-section">
+      <h2>6. Database Schema</h2>
+      <p class="desc">Relasi antar tabel utama dalam sistem FitTrack.</p>
+      <div class="diagram-card">
+        <pre class="mermaid">
+erDiagram
+    USERS {
+        uuid id PK
+        string email
+        string password_hash
+        enum role
+        timestamp created_at
+    }
+
+    PT_PROFILES {
+        uuid id PK
+        uuid user_id FK
+        string name
+        string specialization
+        string phone
+    }
+
+    CLIENT_PROFILES {
+        uuid id PK
+        uuid user_id FK
+        uuid pt_id FK
+        string name
+        float weight_kg
+        float target_weight
+        int daily_calorie_target
+        enum status
+    }
+
+    WORKOUT_SCHEDULES {
+        uuid id PK
+        uuid pt_id FK
+        uuid client_id FK
+        date schedule_date
+        string title
+        json exercises
+        enum status
+    }
+
+    MEAL_LOGS {
+        uuid id PK
+        uuid client_id FK
+        date log_date
+        enum meal_type
+        string food_name
+        int calories
+        float protein_g
+        float carbs_g
+        float fat_g
+    }
+
+    USERS ||--o| PT_PROFILES : has
+    USERS ||--o| CLIENT_PROFILES : has
+    PT_PROFILES ||--o{ CLIENT_PROFILES : manages
+    CLIENT_PROFILES ||--o{ WORKOUT_SCHEDULES : receives
+    CLIENT_PROFILES ||--o{ MEAL_LOGS : logs
+        </pre>
+      </div>
+    </div>
+
+    <footer>FitTrack Product Documentation &middot; 2026</footer>
+  </div>
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'neutral',
+      fontFamily: 'Inter, sans-serif',
+      flowchart: { curve: 'basis', padding: 16 },
+      sequence: { actorMargin: 40, messageFontSize: 13 }
+    });
+  </script>
+</body>
+</html>
