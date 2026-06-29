@@ -7,8 +7,12 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     *{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
     body{font-family:'Inter',sans-serif;background:#fafafa;color:#1a1a2e;line-height:1.6;font-size:15px}
     ::selection{background:#0f766e;color:#fff}
+
+    /* Progress Bar */
+    .progress-bar{position:fixed;top:0;left:0;height:3px;background:#0f766e;z-index:999;transition:width 0.1s linear;width:0}
 
     .wrapper{max-width:880px;margin:0 auto;padding:48px 24px 96px}
 
@@ -24,48 +28,73 @@
     .toc h2{font-size:14px;font-weight:600;color:#374151;margin-bottom:14px;letter-spacing:-0.1px}
     .toc ol{padding-left:20px;display:flex;flex-direction:column;gap:6px}
     .toc li{font-size:13px;color:#6b7280}
-    .toc a{color:#0f766e;text-decoration:none;font-weight:500}
-    .toc a:hover{text-decoration:underline}
+    .toc a{color:#0f766e;text-decoration:none;font-weight:500;transition:color 0.2s}
+    .toc a:hover{color:#115e59;text-decoration:underline}
 
-    /* Sections */
-    .section{margin-bottom:56px}
-    .section-num{font-size:12px;font-weight:600;color:#0f766e;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px}
-    .section h2{font-size:22px;font-weight:700;letter-spacing:-0.4px;margin-bottom:8px;color:#101820}
-    .section .section-desc{font-size:14px;color:#6b7280;line-height:1.65;margin-bottom:24px;max-width:640px}
+    /* Scroll Animation */
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity 0.6s cubic-bezier(0.4,0,0.2,1),transform 0.6s cubic-bezier(0.4,0,0.2,1)}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+    .reveal:nth-child(2){transition-delay:0.05s}
+    .reveal:nth-child(3){transition-delay:0.1s}
+
+    /* Accordion Sections */
+    .section{margin-bottom:16px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;overflow:hidden;transition:box-shadow 0.3s}
+    .section:hover{box-shadow:0 2px 12px rgba(0,0,0,0.04)}
+    .section-header{display:flex;align-items:center;gap:14px;padding:20px 24px;cursor:pointer;user-select:none;transition:background 0.2s}
+    .section-header:hover{background:#f9fafb}
+    .section-step{width:36px;height:36px;border-radius:10px;background:#f0fdf4;color:#0f766e;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;transition:all 0.3s}
+    .section.open .section-step{background:#0f766e;color:#fff}
+    .section-header-text{flex:1}
+    .section-header-text h2{font-size:17px;font-weight:600;letter-spacing:-0.3px;color:#101820;margin:0}
+    .section-header-text p{font-size:12px;color:#9ca3af;margin-top:2px}
+    .section-toggle{width:28px;height:28px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.3s;font-size:12px;color:#6b7280}
+    .section.open .section-toggle{transform:rotate(180deg);background:#f0fdf4;border-color:#0f766e;color:#0f766e}
+
+    .section-body{max-height:0;overflow:hidden;transition:max-height 0.5s cubic-bezier(0.4,0,0.2,1)}
+    .section.open .section-body{max-height:3000px}
+    .section-inner{padding:0 24px 24px}
+
+    .section .section-desc{font-size:14px;color:#6b7280;line-height:1.65;margin-bottom:20px;max-width:640px}
 
     /* Diagram Card */
-    .diagram-card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:32px 24px;overflow-x:auto}
+    .diagram-card{background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:32px 24px;overflow-x:auto}
     .diagram-card .mermaid{display:flex;justify-content:center}
     .diagram-card .mermaid svg{max-width:100%}
 
     /* Notes */
     .note{background:#f0fdf4;border-left:3px solid #0f766e;border-radius:0 8px 8px 0;padding:14px 18px;margin-top:20px;font-size:13px;color:#14532d;line-height:1.6}
     .note-title{font-weight:600;margin-bottom:4px}
-
     .note-blue{background:#eff6ff;border-left-color:#2563eb;color:#1e3a5f}
 
     /* Specs Table */
-    .spec-table{width:100%;border-collapse:collapse;margin-top:20px;font-size:13px}
-    .spec-table th{text-align:left;padding:10px 14px;background:#f9fafb;border:1px solid #e5e7eb;font-weight:600;color:#374151;font-size:12px;text-transform:uppercase;letter-spacing:0.3px}
-    .spec-table td{padding:10px 14px;border:1px solid #e5e7eb;color:#4b5563;vertical-align:top}
-    .spec-table tr:hover td{background:#fafafa}
+    .spec-table{width:100%;border-collapse:collapse;margin-top:20px;font-size:13px;border-radius:8px;overflow:hidden}
+    .spec-table th{text-align:left;padding:10px 14px;background:#f0fdf4;border:1px solid #e5e7eb;font-weight:600;color:#0f766e;font-size:12px;text-transform:uppercase;letter-spacing:0.3px}
+    .spec-table td{padding:10px 14px;border:1px solid #e5e7eb;color:#4b5563;vertical-align:top;transition:background 0.15s}
+    .spec-table tr:hover td{background:#f9fafb}
 
-    .divider{height:1px;background:#e5e7eb;margin:56px 0}
+    /* Back to Top */
+    .back-top{position:fixed;bottom:24px;right:24px;width:40px;height:40px;border-radius:10px;background:#0f766e;color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;opacity:0;transform:translateY(12px);transition:all 0.3s;z-index:100;box-shadow:0 2px 12px rgba(15,118,110,0.3)}
+    .back-top.show{opacity:1;transform:translateY(0)}
+    .back-top:active{transform:scale(0.92)}
 
-    footer{text-align:center;font-size:12px;color:#9ca3af;padding-top:32px;border-top:1px solid #e5e7eb}
+    footer{text-align:center;font-size:12px;color:#9ca3af;padding-top:32px;border-top:1px solid #e5e7eb;margin-top:48px}
     footer a{color:#0f766e;text-decoration:none}
 
     @media(max-width:600px){
-      .wrapper{padding:32px 16px 64px}
+      .wrapper{padding:32px 12px 64px}
       .doc-header h1{font-size:24px}
       .diagram-card{padding:20px 12px}
+      .section-header{padding:16px}
+      .section-inner{padding:0 16px 20px}
     }
   </style>
 </head>
 <body>
+<div class="progress-bar" id="progressBar"></div>
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0})">&uarr;</button>
 <div class="wrapper">
 
-  <div class="doc-header">
+  <div class="doc-header reveal">
     <div class="brand">FitTrack</div>
     <h1>Product Documentation</h1>
     <p class="lead">Dokumentasi teknis dan alur produk FitTrack — platform manajemen klien untuk personal trainer. Dokumen ini mencakup user flow, arsitektur sistem, skema database, dan strategi monetisasi.</p>
@@ -76,22 +105,29 @@
     </div>
   </div>
 
-  <nav class="toc">
+  <nav class="toc reveal">
     <h2>Daftar Isi</h2>
     <ol>
       <li><a href="#flow-pt">User Flow — Personal Trainer</a></li>
       <li><a href="#flow-client">User Flow — Client</a></li>
       <li><a href="#arch">Arsitektur Sistem</a></li>
-      <li><a href="#notif">Alur Notifikasi</a></li>
+      <li><a href="#notif">Alur Notifikasi Harian</a></li>
       <li><a href="#db">Skema Database</a></li>
       <li><a href="#pricing">Struktur Pricing</a></li>
     </ol>
   </nav>
 
   <!-- 1. PT FLOW -->
-  <div class="section" id="flow-pt">
-    <div class="section-num">Bagian 01</div>
-    <h2>User Flow — Personal Trainer</h2>
+  <div class="section reveal open" id="flow-pt">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-step">1</div>
+      <div class="section-header-text">
+        <h2>User Flow — Personal Trainer</h2>
+        <p>Autentikasi, manajemen klien, penyusunan jadwal latihan</p>
+      </div>
+      <div class="section-toggle">&darr;</div>
+    </div>
+    <div class="section-body"><div class="section-inner">
     <p class="section-desc">Alur penggunaan dari sisi personal trainer dimulai dari proses autentikasi, kemudian bercabang ke tiga modul utama: pengelolaan klien, penyusunan jadwal latihan, dan monitoring ringkasan kepatuhan.</p>
     <div class="diagram-card">
       <pre class="mermaid">
@@ -153,14 +189,20 @@ flowchart TD
       <tr><td>Jadwal disimpan</td><td>PT klik Simpan</td><td>Entry dibuat di database, cron notifikasi terjadwal</td></tr>
       <tr><td>Klien baru ditambahkan</td><td>PT submit form</td><td>Generate invite link, kirim via channel yang dipilih</td></tr>
     </table>
+    </div></div>
   </div>
 
-  <div class="divider"></div>
-
   <!-- 2. CLIENT FLOW -->
-  <div class="section" id="flow-client">
-    <div class="section-num">Bagian 02</div>
-    <h2>User Flow — Client</h2>
+  <div class="section reveal" id="flow-client">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-step">2</div>
+      <div class="section-header-text">
+        <h2>User Flow — Client</h2>
+        <p>Notifikasi latihan, meal logging, tracking progress harian</p>
+      </div>
+      <div class="section-toggle">&darr;</div>
+    </div>
+    <div class="section-body"><div class="section-inner">
     <p class="section-desc">Client menerima notifikasi jadwal latihan dari PT setiap pagi, melaporkan status penyelesaian latihan, dan mencatat asupan makanan sepanjang hari. Sistem menghitung kalori secara otomatis dan memberikan ringkasan di akhir hari.</p>
     <div class="diagram-card">
       <pre class="mermaid">
@@ -222,14 +264,20 @@ flowchart TD
       <tr><td>Ringkasan harian</td><td>21:00 WIB (malam)</td><td>In-app + Push notification</td></tr>
       <tr><td>Alert kalori berlebih</td><td>Real-time saat log makan</td><td>In-app alert</td></tr>
     </table>
+    </div></div>
   </div>
 
-  <div class="divider"></div>
-
   <!-- 3. ARCHITECTURE -->
-  <div class="section" id="arch">
-    <div class="section-num">Bagian 03</div>
-    <h2>Arsitektur Sistem</h2>
+  <div class="section reveal" id="arch">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-step">3</div>
+      <div class="section-header-text">
+        <h2>Arsitektur Sistem</h2>
+        <p>Frontend, backend, database, dan layanan eksternal</p>
+      </div>
+      <div class="section-toggle">&darr;</div>
+    </div>
+    <div class="section-body"><div class="section-inner">
     <p class="section-desc">FitTrack menggunakan arsitektur client-server dengan pemisahan antara frontend (web dan mobile PWA), backend API, database layer, dan integrasi layanan pihak ketiga untuk notifikasi dan penyimpanan file.</p>
     <div class="diagram-card">
       <pre class="mermaid">
@@ -290,14 +338,20 @@ flowchart LR
       <tr><td>Storage</td><td>Cloudflare R2</td><td>Foto progress klien, egress gratis</td></tr>
       <tr><td>Hosting</td><td>Vercel + Railway</td><td>Auto-deploy dari GitHub, generous free tier</td></tr>
     </table>
+    </div></div>
   </div>
 
-  <div class="divider"></div>
-
   <!-- 4. NOTIFICATION -->
-  <div class="section" id="notif">
-    <div class="section-num">Bagian 04</div>
-    <h2>Alur Notifikasi Harian</h2>
+  <div class="section reveal" id="notif">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-step">4</div>
+      <div class="section-header-text">
+        <h2>Alur Notifikasi Harian</h2>
+        <p>Cron job pagi, alert real-time, ringkasan malam</p>
+      </div>
+      <div class="section-toggle">&darr;</div>
+    </div>
+    <div class="section-body"><div class="section-inner">
     <p class="section-desc">Sistem menjalankan tiga cron job harian: pengiriman jadwal latihan pagi hari, reminder meal log di siang dan malam, serta ringkasan harian untuk PT dan client di akhir hari.</p>
     <div class="diagram-card">
       <pre class="mermaid">
@@ -343,14 +397,20 @@ sequenceDiagram
     end
       </pre>
     </div>
+    </div></div>
   </div>
 
-  <div class="divider"></div>
-
   <!-- 5. DATABASE -->
-  <div class="section" id="db">
-    <div class="section-num">Bagian 05</div>
-    <h2>Skema Database</h2>
+  <div class="section reveal" id="db">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-step">5</div>
+      <div class="section-header-text">
+        <h2>Skema Database</h2>
+        <p>Entity relationship, tabel utama, dan relasi antar data</p>
+      </div>
+      <div class="section-toggle">&darr;</div>
+    </div>
+    <div class="section-body"><div class="section-inner">
     <p class="section-desc">Skema relasional yang menghubungkan user, profil PT dan client, jadwal latihan, log makanan, ringkasan harian, dan riwayat notifikasi. Menggunakan UUID sebagai primary key untuk seluruh tabel.</p>
     <div class="diagram-card">
       <pre class="mermaid">
@@ -449,14 +509,20 @@ erDiagram
     USERS ||--o{ NOTIFICATIONS : receives
       </pre>
     </div>
+    </div></div>
   </div>
 
-  <div class="divider"></div>
-
   <!-- 6. PRICING -->
-  <div class="section" id="pricing">
-    <div class="section-num">Bagian 06</div>
-    <h2>Struktur Pricing</h2>
+  <div class="section reveal" id="pricing">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-step">6</div>
+      <div class="section-header-text">
+        <h2>Struktur Pricing</h2>
+        <p>Freemium model, tiga tier untuk pasar Indonesia</p>
+      </div>
+      <div class="section-toggle">&darr;</div>
+    </div>
+    <div class="section-body"><div class="section-inner">
     <p class="section-desc">Model freemium dengan tiga tier yang disesuaikan untuk pasar Indonesia. Free plan untuk akuisisi user, Pro plan sebagai revenue utama, dan Studio plan untuk segmen B2B.</p>
     <div class="diagram-card">
       <pre class="mermaid">
@@ -500,6 +566,7 @@ flowchart LR
       <tr><td>Pro</td><td>Rp 99.000/bulan</td><td>PT aktif dengan 5-20 klien</td><td>Revenue utama, target 70% paying users</td></tr>
       <tr><td>Studio</td><td>Rp 249.000/bulan</td><td>Gym dan studio fitness</td><td>B2B revenue, higher LTV</td></tr>
     </table>
+    </div></div>
   </div>
 
   <footer>FitTrack Product Documentation v1.0 &middot; <a href="https://github.com/iqraa07/fittrack-saas">Source Repository</a></footer>
@@ -513,6 +580,28 @@ flowchart LR
     fontFamily:'Inter, sans-serif',
     flowchart:{curve:'basis',padding:16,nodeSpacing:40,rankSpacing:50},
     sequence:{actorMargin:50,messageFontSize:13,noteMargin:12,boxMargin:8}
+  });
+</script>
+<script>
+  // Scroll reveal
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)} });
+  }, {threshold:0.08});
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+  // Accordion toggle
+  function toggleSection(header){
+    const sec = header.parentElement;
+    sec.classList.toggle('open');
+  }
+  window.toggleSection = toggleSection;
+
+  // Progress bar
+  window.addEventListener('scroll', () => {
+    const h = document.documentElement;
+    const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('backTop').classList.toggle('show', h.scrollTop > 400);
   });
 </script>
 </body>
