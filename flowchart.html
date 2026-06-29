@@ -681,9 +681,30 @@ flowchart TD
       <tr><td>Alert Kalori</td><td>Real-time</td><td>"Kalori hari ini sudah mencapai 1.850/1.800 kcal. Pertimbangkan porsi makan malam yang lebih ringan."</td></tr>
       <tr><td>Milestone</td><td>Event-based</td><td>"Selamat Sarah! Kamu sudah konsisten 30 hari berturut-turut. Berat badan turun 2.1 kg dari awal."</td></tr>
     </table>
-    <div class="note note-blue" style="margin-top:16px">
-      <div class="note-title">Estimasi Biaya WhatsApp API</div>
-      Menggunakan Fonnte (provider lokal), biaya sekitar Rp 100-150 per pesan. Untuk PT dengan 20 klien aktif dan 3 pesan/hari, estimasi biaya bulanan sekitar Rp 180.000-270.000. Biaya ini sudah tercover dari selisih margin Plan Pro (Rp 99.000) jika dihitung per-klien.
+
+    <h3 style="font-size:15px;font-weight:600;margin-top:28px;margin-bottom:12px;color:#101820">Opsi Provider WhatsApp API</h3>
+    <p class="section-desc" style="margin-bottom:16px">Ada dua pendekatan untuk integrasi WhatsApp: menggunakan API resmi Meta melalui provider (Fonnte, Wablas, dll), atau library open-source seperti Baileys.js yang terhubung langsung ke WhatsApp Web tanpa biaya per-pesan.</p>
+
+    <table class="spec-table">
+      <tr><th>Aspek</th><th>API Resmi (Fonnte / Wablas)</th><th>Baileys.js (Unofficial)</th></tr>
+      <tr><td>Biaya</td><td>Rp 100-150 per pesan, atau langganan bulanan</td><td>Gratis, self-hosted di server sendiri</td></tr>
+      <tr><td>Stabilitas</td><td>Sangat stabil, uptime dijamin provider</td><td>Bisa disconnect sewaktu-waktu jika WhatsApp update protocol</td></tr>
+      <tr><td>Setup</td><td>Daftar akun, dapat API key, langsung pakai</td><td>Clone repo, scan QR code, butuh server Node.js 24/7</td></tr>
+      <tr><td>Risiko Ban</td><td>Rendah, karena melalui channel resmi Meta</td><td>Tinggi jika kirim spam atau volume terlalu besar</td></tr>
+      <tr><td>Fitur</td><td>Kirim teks, gambar, dokumen, template message</td><td>Kirim teks, gambar, dokumen, sticker, reply, group</td></tr>
+      <tr><td>Skalabilitas</td><td>Unlimited, tinggal bayar</td><td>Terbatas oleh rate limit WhatsApp Web</td></tr>
+      <tr><td>Legalitas</td><td>Sepenuhnya legal dan sesuai ToS WhatsApp</td><td>Melanggar ToS WhatsApp, risiko nomor di-ban permanen</td></tr>
+      <tr><td>Cocok untuk</td><td>Produksi, klien banyak, bisnis serius</td><td>Prototype, testing, proyek personal, volume kecil</td></tr>
+    </table>
+
+    <div class="note" style="margin-top:16px">
+      <div class="note-title">Rekomendasi</div>
+      Untuk tahap MVP dan testing awal, gunakan <strong>Baileys.js</strong> karena gratis dan fiturnya cukup lengkap. Setelah produk sudah tervalidasi dan mulai punya paying users, migrasi ke <strong>API resmi</strong> (Fonnte atau Meta Business API langsung) untuk stabilitas dan legalitas jangka panjang. Kode notifikasi sebaiknya dibuat modular (abstraksi interface) sehingga switching provider cukup ganti adapter tanpa ubah logic bisnis.
+    </div>
+
+    <div class="note note-blue" style="margin-top:12px">
+      <div class="note-title">Baileys.js — Referensi Teknis</div>
+      Repository: <a href="https://github.com/WhiskeySockets/Baileys" style="color:#2563eb" target="_blank">github.com/WhiskeySockets/Baileys</a>. Library Node.js yang berkomunikasi langsung dengan WhatsApp Web via WebSocket. Mendukung multi-device, tidak perlu browser terbuka. Setup: <code>npm install @whiskeysockets/baileys</code>, scan QR dari terminal, session tersimpan di file lokal.
     </div>
     </div></div>
   </div>
@@ -704,11 +725,33 @@ flowchart TD
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
   mermaid.initialize({
-    startOnLoad:true,
+    startOnLoad:false,
     theme:'neutral',
     fontFamily:'Inter, sans-serif',
     flowchart:{curve:'basis',padding:16,nodeSpacing:40,rankSpacing:50},
     sequence:{actorMargin:50,messageFontSize:13,noteMargin:12,boxMargin:8}
+  });
+
+  // Render Mermaid, then attach lightbox listeners
+  await mermaid.run();
+
+  // Lightbox — attached after SVGs exist
+  document.querySelectorAll('.diagram-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+      if(e.target.closest('.lightbox')) return;
+      const svg = card.querySelector('svg');
+      if(!svg) return;
+      const lb = document.getElementById('lightbox');
+      const content = document.getElementById('lightboxContent');
+      const clone = svg.cloneNode(true);
+      clone.style.minWidth = '800px';
+      clone.style.maxWidth = 'none';
+      const oldSvg = content.querySelector('svg');
+      if(oldSvg) oldSvg.remove();
+      content.appendChild(clone);
+      lb.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    });
   });
 </script>
 <script>
@@ -756,23 +799,7 @@ flowchart TD
   }, {rootMargin:'-20% 0px -60% 0px'});
   document.querySelectorAll('.section[id]').forEach(s => tocObs.observe(s));
 
-  // Lightbox
-  document.querySelectorAll('.diagram-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const svg = card.querySelector('svg');
-      if(!svg) return;
-      const lb = document.getElementById('lightbox');
-      const content = document.getElementById('lightboxContent');
-      const clone = svg.cloneNode(true);
-      clone.style.minWidth = '700px';
-      const oldSvg = content.querySelector('svg');
-      if(oldSvg) oldSvg.remove();
-      content.appendChild(clone);
-      lb.classList.add('show');
-      document.body.style.overflow = 'hidden';
-    });
-  });
-
+  // Lightbox close
   function closeLightbox(e, force){
     if(force || e.target.id === 'lightbox'){
       document.getElementById('lightbox').classList.remove('show');
