@@ -145,6 +145,7 @@
       <li><a href="#flow-client" data-target="flow-client">User Flow — Client</a></li>
       <li><a href="#arch" data-target="arch">Arsitektur Sistem</a></li>
       <li><a href="#notif" data-target="notif">Alur Notifikasi Harian</a></li>
+      <li><a href="#wa" data-target="wa">Integrasi WhatsApp</a></li>
       <li><a href="#db" data-target="db">Skema Database</a></li>
       <li><a href="#pricing" data-target="pricing">Struktur Pricing</a></li>
     </ol>
@@ -606,6 +607,88 @@ flowchart LR
     </table>
     </div></div>
   </div>
+
+  <!-- 7. WHATSAPP INTEGRATION -->
+  <div class="section reveal" id="wa">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-step">7</div>
+      <div class="section-header-text">
+        <h2>Integrasi WhatsApp Notification</h2>
+        <p>Setup koneksi, template pesan, dan alur pengiriman otomatis</p>
+      </div>
+      <div class="section-toggle">&darr;</div>
+    </div>
+    <div class="section-body"><div class="section-inner">
+    <p class="section-desc">WhatsApp dipilih sebagai channel utama notifikasi karena penetrasi penggunanya di Indonesia sangat tinggi. Integrasi menggunakan WhatsApp Business API melalui provider pihak ketiga (Fonnte/Wablas) untuk mengirim pesan otomatis ke klien berdasarkan jadwal yang sudah ditentukan sistem.</p>
+    <div class="diagram-card">
+      <pre class="mermaid">
+flowchart TD
+    subgraph Setup ["Konfigurasi Awal oleh PT"]
+        direction TB
+        A[PT Buka Pengaturan] --> B[Input Nomor WhatsApp Bisnis]
+        B --> C[Verifikasi via OTP]
+        C --> D{Verifikasi berhasil?}
+        D -->|Gagal| B
+        D -->|Berhasil| E[Nomor Terhubung]
+        E --> F[Pilih Template Pesan\nJadwal Latihan / Reminder / Ringkasan]
+        F --> G[Set Jadwal Pengiriman\n06:00, 12:00, 21:00 WIB]
+        G --> H[Konfigurasi Selesai]
+    end
+
+    subgraph Auto ["Pengiriman Otomatis Harian"]
+        direction TB
+        I[Cron Trigger Sesuai Jadwal] --> J[Ambil Data dari Database\nJadwal Latihan / Meal Reminder / Summary]
+        J --> K[Generate Pesan dari Template\nNama klien, detail latihan, kalori]
+        K --> L[Kirim ke WhatsApp API]
+        L --> M{Status pengiriman?}
+        M -->|Terkirim| N[Catat Status: DELIVERED]
+        M -->|Gagal| O[Retry Maksimal 3x\nInterval 5 menit]
+        O --> P{Masih gagal?}
+        P -->|Ya| Q[Catat Status: FAILED\nFallback ke Push Notification]
+        P -->|Tidak| N
+    end
+
+    subgraph Template ["Jenis Pesan Otomatis"]
+        direction TB
+        T1[Reminder Jadwal Latihan\nDikirim 06:00 pagi]
+        T2[Reminder Meal Log\nDikirim 12:00 dan 19:00]
+        T3[Ringkasan Harian\nDikirim 21:00 malam]
+        T4[Alert Kalori Berlebih\nDikirim real-time]
+        T5[Ucapan Milestone\nStreak 7 hari, target tercapai]
+    end
+
+    H --> I
+    N --> R[Klien Terima Pesan di WhatsApp]
+    R --> S{Klien klik link di pesan?}
+    S -->|Ya| S1[Buka Aplikasi FitTrack\nLangsung ke halaman terkait]
+    S -->|Tidak| S2[Pesan tetap tersimpan\ndi chat WhatsApp]
+
+    style Setup fill:#f0fdf4,stroke:#16a34a,color:#14532d
+    style Auto fill:#eff6ff,stroke:#2563eb,color:#1e3a5f
+    style Template fill:#faf5ff,stroke:#7c3aed,color:#3b0764
+    style Q fill:#fef2f2,stroke:#dc2626,color:#7f1d1d
+      </pre>
+    </div>
+    <div class="note">
+      <div class="note-title">Catatan Implementasi</div>
+      Setiap pesan WhatsApp mengandung deep link ke halaman spesifik di aplikasi. Contoh: link di reminder latihan langsung membuka halaman jadwal hari ini, link di reminder meal log langsung membuka form input makanan. Ini meminimalkan friction dan meningkatkan engagement rate.
+    </div>
+    <table class="spec-table">
+      <tr><th>Jenis Pesan</th><th>Waktu Kirim</th><th>Contoh Isi</th></tr>
+      <tr><td>Reminder Latihan</td><td>06:00 WIB</td><td>"Hai Sarah, hari ini jadwal Upper Body dari Coach Rizky. Bench Press 4x12, Shoulder Press 3x10. Tap di sini untuk lihat detail."</td></tr>
+      <tr><td>Reminder Meal Log</td><td>12:00, 19:00 WIB</td><td>"Sudah makan siang? Jangan lupa catat makananmu hari ini. Sisa kalori: 980 kcal."</td></tr>
+      <tr><td>Ringkasan Harian</td><td>21:00 WIB</td><td>"Ringkasan hari ini: Latihan selesai, kalori 1.650/1.800 kcal (92%). Streak: 7 hari."</td></tr>
+      <tr><td>Alert Kalori</td><td>Real-time</td><td>"Kalori hari ini sudah mencapai 1.850/1.800 kcal. Pertimbangkan porsi makan malam yang lebih ringan."</td></tr>
+      <tr><td>Milestone</td><td>Event-based</td><td>"Selamat Sarah! Kamu sudah konsisten 30 hari berturut-turut. Berat badan turun 2.1 kg dari awal."</td></tr>
+    </table>
+    <div class="note note-blue" style="margin-top:16px">
+      <div class="note-title">Estimasi Biaya WhatsApp API</div>
+      Menggunakan Fonnte (provider lokal), biaya sekitar Rp 100-150 per pesan. Untuk PT dengan 20 klien aktif dan 3 pesan/hari, estimasi biaya bulanan sekitar Rp 180.000-270.000. Biaya ini sudah tercover dari selisih margin Plan Pro (Rp 99.000) jika dihitung per-klien.
+    </div>
+    </div></div>
+  </div>
+
+  <!-- DB section renumber to 5 stays same, pricing to 6 stays same -->
 
   <footer>FitTrack Product Documentation v1.0 &middot; <a href="https://github.com/iqraa07/fittrack-saas">Source Repository</a></footer>
 </div>
